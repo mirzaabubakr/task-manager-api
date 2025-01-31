@@ -1,6 +1,6 @@
 import dbConfig from "../../config/postgre.config";
 const { Sequelize } = require("sequelize");
-
+import { TasksModel } from "../../modules/tasks/model/tasks.model";
 const env: string = process.env.NODE_ENV || "development";
 const config = dbConfig[env] || dbConfig.development;
 
@@ -23,6 +23,8 @@ sequelize
     console.error("Error connecting to the database:", err);
   });
 
+const Task = TasksModel(sequelize);
+
 async function initializeDatabase() {
   try {
     await sequelize.authenticate();
@@ -38,4 +40,4 @@ async function initializeDatabase() {
 // Initialize the database
 initializeDatabase();
 
-export { sequelize };
+export { sequelize, Task };

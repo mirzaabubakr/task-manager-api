@@ -13,7 +13,7 @@ export const TasksModel = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: DataTypes.TEXT,
+      description: { type: DataTypes.TEXT, allowNull: true },
       priority: {
         type: DataTypes.ENUM("Low", "Medium", "High"),
         allowNull: false,
@@ -27,11 +27,15 @@ export const TasksModel = (sequelize: Sequelize) => {
         type: DataTypes.ENUM("Pending", "Completed", "Overdue"),
         defaultValue: "Pending",
       },
+      deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       tableName: "tasks",
-      paranoid: true,
       timestamps: true,
+      paranoid: true,
     }
   );
 };
