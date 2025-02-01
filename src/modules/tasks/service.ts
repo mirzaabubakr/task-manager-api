@@ -49,12 +49,12 @@ export const createUserTask = async (taskData: TaskData) => {
     };
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      return {
-        statusCode: 400,
-        message: error.errors
-          .map((e) => `${e.path.join(".")}: ${e.message}`)
-          .join(", "),
-      };
+      return errorResponse(
+        400,
+        error.errors
+          .map((e: any) => `${e.path.join(".")}: ${e.message}`)
+          .join(", ")
+      );
     } else {
       return errorResponse(500, error.message);
     }
