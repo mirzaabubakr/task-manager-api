@@ -1,18 +1,50 @@
 import { Request } from "express";
-import { Task } from "../../utils/sequelize/sequelize";
+import { sequelize, Task } from "../../utils/sequelize/sequelize";
 import { TaskData, TaskUpdateData } from "./interface/task.interface";
 import { TaskSchema } from "./validations/task.validation";
 import { z } from "zod";
 import { errorResponse } from "../../shared/response";
+import { Op } from "sequelize";
 
 export const getUserTasks = async (req: Request) => {
   try {
-    const { sortBy, order } = req.query;
+    const { sortBy, order, search, limit, offset } = req.query;
     const options: any = {};
 
-    if (["priority", "dueDate"].includes(sortBy as string)) {
-      options.order = [[sortBy, order === "desc" ? "DESC" : "ASC"]];
+    const pageLimit = limit ? parseInt(limit as string, 10) : 10; // Default limit to 10
+    const pageOffset = offset ? parseInt(offset as string, 10) : 0; // Default offset to 0
+
+    if (search) {
+      options.where = {
+        [Op.or]: [
+          { title: { [Op.iLike]: `%${search}%` } },
+          { description: { [Op.iLike]: `%${search}%` } },
+        ],
+      };
     }
+
+    if (sortBy && order) {
+      const sortCriteria = (sortBy as string).split(",");
+      const sortOrder = (order as string).split(",");
+
+      options.order = sortCriteria.map((criteria, index) => {
+        if (criteria === "priority") {
+          return [
+            sequelize.literal(
+              `CASE WHEN priority = 'Low' THEN 1 WHEN priority = 'Medium' THEN 2 WHEN priority = 'High' THEN 3 END`
+            ),
+            sortOrder[index] === "desc" ? "DESC" : "ASC",
+          ];
+        } else if (criteria === "dueDate") {
+          return [criteria, sortOrder[index] === "desc" ? "DESC" : "ASC"];
+        } else {
+          return [criteria, sortOrder[index] === "desc" ? "DESC" : "ASC"];
+        }
+      });
+    }
+
+    options.limit = pageLimit;
+    options.offset = pageOffset;
 
     const tasks = await Task.findAll(options);
 
@@ -26,11 +58,19 @@ export const getUserTasks = async (req: Request) => {
         status: isOverdue ? "Overdue" : taskData.status,
       };
     });
+    const totalTasks = await Task.count({ where: options.where || {} });
 
     return {
       statusCode: 200,
       data: {
         tasks: processedTasks,
+        pagination: {
+          total: totalTasks,
+          limit: pageLimit,
+          offset: pageOffset,
+          totalPages: Math.ceil(totalTasks / pageLimit),
+          currentPage: Math.ceil(pageOffset / pageLimit) + 1,
+        },
       },
     };
   } catch (error: any) {
