@@ -19,7 +19,7 @@ Key functionalities include:
 
 1. Clone the repository:
    ```sh
-   gh repo clone mirzaabubakr/task-manager-api
+   https://github.com/mirzaabubakr/task-manager-api.git
    ```
 2. Navigate to the project directory:
    ```sh

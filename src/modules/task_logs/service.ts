@@ -29,10 +29,14 @@ export const fetchTaskLogs = async (page: number, limit: number) => {
     return {
       statusCode: 200,
       data: {
-        totalLogs: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
         logs: rows,
+        pagination: {
+          total: count,
+          limit: limit,
+          offset: offset,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+        },
       },
     };
   } catch (error) {
