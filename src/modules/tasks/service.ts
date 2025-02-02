@@ -5,7 +5,7 @@ import { TaskSchema } from "./validations/task.validation";
 import { z } from "zod";
 import { errorResponse } from "../../shared/response";
 import { Op } from "sequelize";
-import { logTaskChange } from "../TaskLogs/service";
+import { logTaskChange } from "../task_logs/service";
 
 export const getUserTasks = async (req: Request) => {
   try {

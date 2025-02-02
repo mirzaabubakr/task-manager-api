@@ -1,5 +1,5 @@
 import dbConfig from "../../config/postgre.config";
-import { TaskLogsModel } from "../../modules/TaskLogs/model/tasklog.model";
+import { TaskLogsModel } from "../../modules/task_logs/model/tasklog.model";
 const { Sequelize } = require("sequelize");
 import { TasksModel } from "../../modules/tasks/model/tasks.model";
 const env: string = process.env.NODE_ENV || "development";
