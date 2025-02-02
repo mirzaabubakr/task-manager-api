@@ -1,4 +1,5 @@
 import dbConfig from "../../config/postgre.config";
+import { TaskLogsModel } from "../../modules/TaskLogs/model/tasklog.model";
 const { Sequelize } = require("sequelize");
 import { TasksModel } from "../../modules/tasks/model/tasks.model";
 const env: string = process.env.NODE_ENV || "development";
@@ -24,6 +25,10 @@ sequelize
   });
 
 const Task = TasksModel(sequelize);
+const TaskLogs = TaskLogsModel(sequelize);
+
+TaskLogs.belongsTo(Task, { foreignKey: "taskId", as: "task" });
+Task.hasMany(TaskLogs, { foreignKey: "taskId", as: "logs" });
 
 async function initializeDatabase() {
   try {
@@ -40,4 +45,4 @@ async function initializeDatabase() {
 // Initialize the database
 initializeDatabase();
 
-export { sequelize, Task };
+export { sequelize, Task, TaskLogs };

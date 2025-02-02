@@ -5,6 +5,7 @@ import { TaskSchema } from "./validations/task.validation";
 import { z } from "zod";
 import { errorResponse } from "../../shared/response";
 import { Op } from "sequelize";
+import { logTaskChange } from "../TaskLogs/service";
 
 export const getUserTasks = async (req: Request) => {
   try {
@@ -82,6 +83,11 @@ export const createUserTask = async (taskData: TaskData) => {
   try {
     const validTask = TaskSchema.parse(taskData);
     const task = await Task.create(validTask);
+    await logTaskChange(
+      task.id,
+      "CREATE",
+      `Task created with title: ${task.title}`
+    );
     return {
       statusCode: 201,
       data: task,
@@ -114,6 +120,12 @@ export const updateUserTask = async (
       };
     }
     await task.update(taskUpdateData);
+    await logTaskChange(
+      id,
+      "UPDATE",
+      `Task updated with new data: ${JSON.stringify(taskUpdateData)}`
+    );
+
     return {
       statusCode: 200,
       data: {
@@ -135,6 +147,7 @@ export const deleteUserTask = async (id: string) => {
       };
     }
     await task.destroy();
+    await logTaskChange(id, "DELETE", `Task with id: ${id} was deleted`);
     return {
       statusCode: 200,
       data: {
